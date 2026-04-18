@@ -1,0 +1,84 @@
+// This is your Prisma schema file
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// A chat session groups multiple exploration queries together
+model Session {
+  id          String   @id @default(uuid())
+  title       String?  // auto-generated from first query
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  explorations ExplorationReport[]
+
+  @@map("sessions")
+}
+
+// Each exploration report is the result of one user query run through the multi-agent system
+model ExplorationReport {
+  id               String   @id @default(uuid())
+  sessionId        String
+  query            String   // original user query
+  topic            String?  // extracted by Query Understanding Agent
+  region           String?  // extracted by Query Understanding Agent
+  keyMarkets       String[] // list of key markets identified
+  marketSizeUsdBn  Float?
+  growthRatePct    Float?
+  finalReport      String   @db.Text
+  agentsExecuted   String[] // ordered list of agents that ran
+  plannerReasoning String?  @db.Text
+  status           ReportStatus @default(COMPLETED)
+  createdAt        DateTime @default(now())
+
+  session      Session      @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  agentEvents  AgentEvent[]
+  signalStats  SignalStats?
+
+  @@map("exploration_reports")
+}
+
+// Individual agent events captured during streaming (for showing thinking process)
+model AgentEvent {
+  id          String   @id @default(uuid())
+  reportId    String
+  agent       String   // e.g. "query_understanding", "market_retrieval", "signal_analysis"
+  status      String   // "started" | "completed" | "error"
+  message     String
+  data        Json?    // arbitrary agent output data
+  createdAt   DateTime @default(now())
+
+  report ExplorationReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  @@map("agent_events")
+}
+
+// Signal stats from the News Analysis Agent
+model SignalStats {
+  id                 String @id @default(uuid())
+  reportId           String @unique
+  totalSignals       Int    @default(0)
+  positiveSignals    Int    @default(0)
+  negativeSignals    Int    @default(0)
+  cautiousSignals    Int    @default(0)
+  highImpactSignals  Int    @default(0)
+  countriesCovered   String[]
+
+  report ExplorationReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  @@map("signal_stats")
+}
+
+enum ReportStatus {
+  PENDING
+  STREAMING
+  COMPLETED
+  ERROR
+}

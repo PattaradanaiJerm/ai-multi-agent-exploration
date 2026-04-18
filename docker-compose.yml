@@ -1,0 +1,103 @@
+version: '3.9'
+
+services:
+  # ─────────────────────────────
+  # PostgreSQL Database
+  # ─────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: market_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: market_exploration
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─────────────────────────────
+  # pgAdmin — Database UI
+  # ─────────────────────────────
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: market_pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+
+  # ─────────────────────────────
+  # Python AI Agent Service
+  # ─────────────────────────────
+  ai-agents:
+    build:
+      context: ./ai-agents
+      dockerfile: Dockerfile
+    container_name: market_ai
+    restart: unless-stopped
+    env_file:
+      - ./ai-agents/.env
+    ports:
+      - '8000:8000'
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:8000/api/health']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ─────────────────────────────
+  # NestJS Backend
+  # ─────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: market_backend
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/market_exploration
+      AI_SERVICE_URL: http://ai-agents:8000
+    ports:
+      - '5001:5001'
+    depends_on:
+      postgres:
+        condition: service_healthy
+      ai-agents:
+        condition: service_healthy
+
+  # ─────────────────────────────
+  # Next.js Frontend
+  # ─────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: market_frontend
+    restart: unless-stopped
+    environment:
+      NEXT_PUBLIC_BACKEND_URL: http://localhost:5001
+    ports:
+      - '3001:3001'
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+  pgadmin_data:

@@ -1,0 +1,84 @@
+{
+  "app": {
+    "title": "AI Market Explorer",
+    "subtitle": "Multi-Agent Market Intelligence System",
+    "tagline": "Powered by Dynamic AI Orchestration"
+  },
+  "nav": {
+    "newChat": "New Exploration",
+    "sessions": "History",
+    "noSessions": "No sessions yet"
+  },
+  "welcome": {
+    "heading": "Explore Market Intelligence",
+    "subheading": "Ask about any product category and region. Our AI agents will collaborate dynamically to deliver insights.",
+    "examples": "Try these examples",
+    "exampleQueries": [
+      "Explore market insights for agricultural products in Southeast Asia",
+      "Analyze car spare parts market opportunities in South Asia",
+      "What are the latest developments in convenience food market in ASEAN?",
+      "Investigate Thailand's agricultural export trends and key trading partners",
+      "What is the growth potential for electric vehicle spare parts in Southeast Asia?",
+      "Analyze frozen food and ready-to-eat meal demand in East Asia",
+      "Explore rice and grain commodity trade flows in the Mekong region",
+      "What are the recent news signals for rubber and palm oil in Indonesia and Malaysia?",
+      "Identify emerging markets for processed food products in South Asia",
+      "Analyze automotive aftermarket opportunities in Vietnam and the Philippines"
+    ]
+  },
+  "chat": {
+    "placeholder": "Ask about a product category and region...",
+    "send": "Explore",
+    "thinking": "Agents are collaborating...",
+    "streamingLabel": "Live Agent Thinking Process",
+    "attachFile": "Add image & file",
+    "voiceInput": "Voice input",
+    "voiceListening": "Listening...",
+    "voiceNotSupported": "Voice input not supported in this browser",
+    "model": "AI Model"
+  },
+  "agents": {
+    "orchestrator": "Orchestrator",
+    "query_understanding": "Query Understanding Agent",
+    "query_understanding_desc": "Interprets intent, extracts topic & region",
+    "market_retrieval": "Market Retrieval Agent",
+    "market_retrieval_desc": "Fetches market data & World Bank indicators",
+    "signal_analysis": "Signal Analysis Agent",
+    "signal_analysis_desc": "Scans news signals & external developments",
+    "aggregator": "Report Aggregator",
+    "system": "System"
+  },
+  "status": {
+    "planned": "Planning",
+    "started": "Working",
+    "completed": "Completed",
+    "error": "Error",
+    "done": "Done",
+    "streaming": "Streaming"
+  },
+  "report": {
+    "title": "Exploration Report",
+    "topic": "Topic",
+    "region": "Region",
+    "keyMarkets": "Key Markets",
+    "marketSize": "Market Size",
+    "growthRate": "Growth Rate",
+    "signalStats": "Signal Analysis",
+    "totalSignals": "Total Signals",
+    "positive": "Positive",
+    "negative": "Negative",
+    "cautious": "Cautious",
+    "highImpact": "High Impact",
+    "agentsUsed": "Agents Executed",
+    "copyReport": "Copy Report",
+    "copied": "Copied!"
+  },
+  "theme": {
+    "dark": "Dark",
+    "light": "Light"
+  },
+  "errors": {
+    "streamFailed": "Exploration failed. Please try again.",
+    "networkError": "Network error. Check your connection."
+  }
+}
