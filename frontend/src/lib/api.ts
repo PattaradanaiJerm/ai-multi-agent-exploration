@@ -1,4 +1,4 @@
-import type { Session, AgentEvent, ExploreResult, ExplorationFromDB } from '@/types';
+import type { Session, AgentEvent, ExploreResult, ExplorationFromDB, SignalStats } from '@/types';
 
 const BASE = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3000';
 
@@ -33,6 +33,21 @@ export async function getSessionExplorations(sessionId: string): Promise<Explora
   const res = await fetch(`${BASE}/api/explorations/session/${sessionId}`, { cache: 'no-store' });
   if (!res.ok) throw new Error('Failed to fetch explorations');
   return res.json();
+}
+
+// ── Helpers ───────────────────────────────────────────────
+// Python AI layer returns snake_case signal_stats; the DB layer (via Prisma) returns camelCase.
+// Normalize both formats so the frontend always gets camelCase SignalStats.
+function normalizeSignalStats(raw: any): SignalStats | null {
+  if (!raw) return null;
+  return {
+    totalSignals:     raw.totalSignals     ?? raw.total_signals     ?? 0,
+    positiveSignals:  raw.positiveSignals  ?? raw.positive_signals  ?? 0,
+    negativeSignals:  raw.negativeSignals  ?? raw.negative_signals  ?? 0,
+    cautiousSignals:  raw.cautiousSignals  ?? raw.cautious_signals  ?? 0,
+    highImpactSignals:raw.highImpactSignals?? raw.high_impact_signals?? 0,
+    countriesCovered: raw.countriesCovered ?? raw.countries_covered ?? [],
+  };
 }
 
 // ── Streaming Exploration ─────────────────────────────────
@@ -74,11 +89,24 @@ export async function streamExploration(
     for (const line of lines) {
       if (!line.startsWith('data: ')) continue;
       try {
-        const event: AgentEvent = JSON.parse(line.slice(6));
+        const event = JSON.parse(line.slice(6));
         if (event.status === 'done' && event.data) {
-          onDone(event.data as unknown as ExploreResult);
+          const d = event.data;
+          onDone({
+            query:              d.query ?? query,
+            query_summary:      d.query_summary ?? null,
+            key_markets:        d.key_markets ?? [],
+            market_size_usd_bn: d.market_size_usd_bn ?? null,
+            growth_rate_pct:    d.growth_rate_pct ?? null,
+            signal_stats:       normalizeSignalStats(d.signal_stats),
+            final_report:       d.final_report ?? '',
+            agents_executed:    d.agents_executed ?? [],
+            planner_reasoning:  d.planner_reasoning ?? '',
+            events:             d.events ?? [],
+            error:              d.error ?? null,
+          });
         } else {
-          onEvent(event);
+          onEvent(event as AgentEvent);
         }
       } catch {
         // skip malformed lines
