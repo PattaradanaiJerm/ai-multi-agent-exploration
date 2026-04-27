@@ -92,9 +92,10 @@ export class ExplorationService {
       return updated;
     } catch (err) {
       // Mark report as errored
+      const message = err instanceof Error ? err.message : String(err);
       await this.prisma.explorationReport.update({
         where: { id: report.id },
-        data: { status: 'ERROR', finalReport: String(err.message) },
+        data: { status: 'ERROR', finalReport: message },
       });
       throw err;
     }

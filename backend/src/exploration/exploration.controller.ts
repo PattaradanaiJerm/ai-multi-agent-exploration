@@ -96,7 +96,8 @@ export class ExplorationController {
         res.end();
       });
     } catch (err) {
-      res.write(`data: ${JSON.stringify({ agent: 'system', status: 'error', message: String(err.message) })}\n\n`);
+      const message = err instanceof Error ? err.message : String(err);
+      res.write(`data: ${JSON.stringify({ agent: 'system', status: 'error', message })}\n\n`);
       res.end();
     }
   }
