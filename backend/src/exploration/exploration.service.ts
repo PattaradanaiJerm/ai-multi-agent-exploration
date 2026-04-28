@@ -3,6 +3,8 @@ import { PrismaService } from '../prisma/prisma.service';
 import { AiService } from '../ai/ai.service';
 import { CreateExplorationDto } from './dto/create-exploration.dto';
 
+//Service — AI Service calls and DB persistence for exploration reports
+
 @Injectable()
 export class ExplorationService {
   private readonly logger = new Logger(ExplorationService.name);

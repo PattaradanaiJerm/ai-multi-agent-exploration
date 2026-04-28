@@ -9,6 +9,8 @@ import { ExplorationService } from './exploration.service';
 import { AiService } from '../ai/ai.service';
 import { CreateExplorationDto } from './dto/create-exploration.dto';
 
+//HTTP request — expose endpoints
+
 @ApiTags('explorations')
 @Controller('api/explorations')
 export class ExplorationController {

@@ -22,7 +22,7 @@ export interface ExploreResult {
   events: AgentEvent[];
   error: string | null;
 }
-
+//Call AI Service with request form exploration
 @Injectable()
 export class AiService {
   private readonly logger = new Logger(AiService.name);
